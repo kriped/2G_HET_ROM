@@ -1,10 +1,10 @@
 %%
 clear variables; close all; clc;
-load('../../CORE_SIM_1.2_edited/output/RESULTS.mat')
-load('../../CORE_SIM_1.2_edited/input/XS_data.mat')
-load('../../CORE_SIM_1.2_edited/input/GEOM_data.mat')
+load('../../../CORE_SIM_1.2_edited/output/RESULTS.mat')
+load('../../../CORE_SIM_1.2_edited/input/XS_data.mat')
+load('../../../CORE_SIM_1.2_edited/input/GEOM_data.mat')
 load("C:/Users/kriped/Chalmers/XEROM/Matlab code/ROM_Analytical_SC/input/ROM_input.mat","height","radius","power","sigmaX","gammaI", "gammaX", "lambdaI", "lambdaX","kappa");
-load("Nodal_Values.mat","XS")
+load("../data/Nodal_Values.mat","XS")
 %% create sparse CR matrix
 
 CR_SA1 = zeros(size(D1));
@@ -165,9 +165,9 @@ clear temp* VECX GAMMAI GAMMAX F D ONE ZERO I0 X0 SIGF1 SIGF2 SIG Xe_UPPER MATX 
 % 
 % [time, state_values] = ode15s(ode,tspan,IC,opts,M);
 clear MOD_* CR* DV size*
-save tempFile
+save ../data/tempFile
 [time,state_values_2G]=ivp(M);
-save("amplitudes.mat","time","state_values_2G","FB")
+save("../data/amplitudes.mat","time","state_values_2G","FB")
 %% calculate ASI
 
 % time_total = [time_b;time_a];
