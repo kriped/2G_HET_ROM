@@ -2,9 +2,12 @@ function [time,state_values]=ivp(M)
 close all; clc; clear vars;
 ti=0; tf = 30*3600;
 tspan = [ti,tf];
-IC = zeros(1,M*3)+0.001;
+IC = zeros(1,M*3)+0.01;
+% ExMode = 2;
+% exmodeidx = (ExMode-1)*3+1;
+% IC(exmodeidx) = 0.01;
 % CR = zeros(M);
-[time, state_values] = ode15s(@ode,tspan,IC,[]);
+[time, state_values] = ode15s(ode,tspan,IC,[]);
 
 % ti = 2*3600+1; tf = 5*3600;
 % tspan = [ti,tf];

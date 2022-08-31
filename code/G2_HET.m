@@ -166,7 +166,8 @@ clear temp* VECX GAMMAI GAMMAX F D ONE ZERO I0 X0 SIGF1 SIGF2 SIG Xe_UPPER MATX 
 % [time, state_values] = ode15s(ode,tspan,IC,opts,M);
 clear MOD_* CR* DV size*
 save ../data/tempFile
-[time,state_values_2G]=ivp(M);
+%[time,state_values_2G]=ivp(M);
+[time,state_values_2G] = ode_Nsolve();
 save("../data/amplitudes.mat","time","state_values_2G","FB")
 %% calculate ASI
 
