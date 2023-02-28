@@ -10,11 +10,11 @@ for m = 1:mend
     for n = 1:mend
         % Add new terms to each phi and xenon eqs for each equation
         newstr_P = sprintf(['-1/LAMBDA(%1$i)*FB*PHID_PHI_eq_mat_PHI(%1$i,%2$i)/PHID_F_PHI(%1$i)*s((%2$i-1)*3+1)' ...
-            '-1/LAMBDA(%1$i)*sigmaX*PHID_PHILOWER_PHI(%1$i,%2$i)/PHID_F_PHI(%1$i)*s((%2$i-1)*3+3)'],m,n);
+            '-1/LAMBDA(%1$i)*sigmaX*PHID_PHILOWER_PHI(%1$i,%2$i)/(PHID_F_PHI(%1$i)^2)*PHID_PHI(%1$i)*s((%2$i-1)*3+3)'],m,n);
         PhiString = [PhiString newstr_P];
-        newstr_I = sprintf(['+PHID_GAMMAI_PHI(%1$i,%2$i)/PHID_F_PHI(%1$i)*s((%2$i-1)*3+1)'],m,n);
+        newstr_I = sprintf(['+PHID_GAMMAI_PHI(%1$i,%2$i)*s((%2$i-1)*3+1)/PHID_PHI(%1$i)'],m,n);
         IodineString = [IodineString newstr_I];
-        newstr_X = sprintf(['+(PHID_GAMMAX_PHI(%1$i,%2$i)-sigmaX*PHID_X0_PHI(%1$i,%2$i))/PHID_F_PHI(%1$i)*s((%1$i-1)*3+1)' ...
+        newstr_X = sprintf(['+(PHID_GAMMAX_PHI(%1$i,%2$i)-sigmaX*PHID_X0_PHI(%1$i,%2$i))/PHID_PHI(%1$i)*s((%1$i-1)*3+1)' ...
             '-sigmaX*PHID_PHIUPPER_PHI(%1$i,%2$i)/PHID_F_PHI(%1$i)*s((%1$i-1)*3+3)'],m,n);
         XenonString = [XenonString newstr_X];
     end
