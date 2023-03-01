@@ -9,7 +9,7 @@ clear variables -except Full_time;
 load('../../../CORE_SIM_1.2_edited/output/RESULTS.mat')
 load('../../../CORE_SIM_1.2_edited/input/XS_data.mat')
 load('../../../CORE_SIM_1.2_edited/input/GEOM_data.mat')
-load("C:/Users/kriped/Chalmers/Christophe Demaziere - XEROM/Matlab code/1G_HOM_REAL_MAIN_SC/input/ROM_input.mat","height","radius","power","gammaI", "gammaX", "lambdaI", "lambdaX","kappa");
+load("C:/Users/kriped/Chalmers/Christophe Demaziere - XEROM/Matlab code/1G_HOM_REAL_MAIN_SC/input/ROM_input.mat","height","radius","reactor_power","gammaI", "gammaX", "lambdaI", "lambdaX","kappa");
 load("../data/Nodal_Values.mat","XS")
 %% create sparse CR matrix
 
@@ -63,11 +63,9 @@ F = 1/K_VALUE(1).*[NUFIS1, NUFIS2;ZERO,ZERO]; % Fission matrix
 MOD = [MOD1;MOD2]; % vector of solutions to the forward problem
 MOD_adj = [MOD1_adj,MOD2_adj]; % vector of solutions to the adjoint problem
 MOD_EQ = [MOD1(:,:,:,1);MOD2(:,:,:,1)]; % Vector of only the equilibrium neutron flux solution
-MOD_EQ_INT = DV * sum(MOD1(:,:,:,1)+MOD2(:,:,:,1),'all')
-SIGF_PHI_INT_2G=DV*sum(G2_inner_product([SIGF1,SIGF2],MOD_EQ,"vector","vector"),"all")
-PS = power*K_VALUE(1)/(kappa*DV*sum(G2_inner_product([SIGF1,SIGF2],MOD_EQ,"vector","vector"),"all"));
-PS1 = power*K_VALUE(1)/(DV*sum(G2_inner_product([KFIS1,KFIS2],MOD_EQ,"vector","vector"),"all"));
-PS2 = power*K_VALUE(1)/(DV*[KFIS1,KFIS2]*MOD_EQ);
+% MOD_EQ_INT = DV * sum(MOD1(:,:,:,1)+MOD2(:,:,:,1),'all');
+% SIGF_PHI_INT_2G=DV*sum(G2_inner_product([SIGF1,SIGF2],MOD_EQ,"vector","vector"),"all")
+PS = reactor_power*K_VALUE(1)/(DV*sum(G2_inner_product([KFIS1,KFIS2],MOD_EQ,"vector","vector"),"all"));
 MOD_EQ_scaled= PS*MOD_EQ; % Vector of only the equilibrium neutron flux solution scaled by the power
 MOD_EQ_1_scaled= MOD_EQ_scaled(1:32,:,:);
 MOD_EQ_2_scaled= MOD_EQ_scaled(33:end,:,:);
@@ -147,75 +145,113 @@ for n = 1:M
     %temp_CR_PHI(:,:,:,n) = G2_inner_product(CR_SA,MOD(:,:,:,n),"matrix","vector"); % CP
 end
 %% Plot axial functions for fundamental modes
+close all
 on = 1;
 if on  
     h = 1:sizez;
-    line_temp_PHI_eq_mat_PHI(:) = temp_PHI_eq_mat_PHI(17,17,:,1);
-    line_temp_GAMMAX_PHI(:) = temp_GAMMAX_PHI(17,17,:,1);
-    line_temp_GAMMAI_PHI(:) = temp_GAMMAI_PHI(17,17,:,1);
-    line_temp_PHIUPPER_PHI(:) = temp_PHIUPPER_PHI(17,17,:,1);
-    line_temp_PHILOWER_PHI(:) = temp_PHILOWER_PHI(49,17,:,1);
-    line_temp_X0_PHI(:) =  temp_X0_PHI(17,17,:,1);
-    line_temp_X0_PHI_2(:) = temp_X0_PHI(9,9,:,4); %% First Harmonic
-    line_temp_PHI_eq_mat_PHI_2(:) = temp_PHI_eq_mat_PHI(9,9,:,4); %% First Harmonic
-    line_adj(:) = MOD_adj(17,17,:,1);
-    figure
+    X0_PHI1 = X0.*MOD2(:,:,:,1); % X0*Phi_thermal fundamental mode
+    [~,max_idx] = max(X0_PHI1(:,:,:,1),[],'all','linear');
+    [x_max,y_max,~]=ind2sub(size(X0_PHI1(:,:,:,1)),max_idx);
+    line_X0_PHI1(:) = X0_PHI1(x_max,y_max,:);
+    
+    X0_PHI2 = X0 .* MOD2(:,:,:,4);% X0*Phi_thermal fundamental mode
+    [~,max_idx] = max(X0_PHI2(:,:,:,1),[],'all','linear');
+    [x_max,y_max,~]=ind2sub(size(X0_PHI2(:,:,:,1)),max_idx);
+    line_X0_PHI2(:) = X0_PHI2(x_max,y_max,:);
+    
+    PHID_X0_PHI1 = MOD1_adj(:,:,:,1).* X0_PHI1;
+    [~,max_idx] = max(PHID_X0_PHI1(:,:,:,1),[],'all','linear');
+    [x_max,y_max,~]=ind2sub(size(PHID_X0_PHI1(:,:,:,1)),max_idx);
+    line_PHID_X0_PHI1(:) = PHID_X0_PHI1(x_max,y_max,:);
+    
+    PHID_X0_PHI2 = MOD1_adj(:,:,:,1).* X0_PHI2;
+    [~,max_idx] = max(PHID_X0_PHI2(:,:,:,1),[],'all','linear');
+    [x_max,y_max,~]=ind2sub(size(PHID_X0_PHI2(:,:,:,1)),max_idx);
+    line_PHID_X0_PHI2(:) = PHID_X0_PHI2(x_max,y_max,:);
+    
+    Eq_PHI1 = MOD_EQ_1_scaled.*MOD1(:,:,:,1);
+    [~,max_idx] = max(Eq_PHI1(:,:,:,1),[],'all','linear');
+    [x_max,y_max,~]=ind2sub(size(Eq_PHI1(:,:,:,1)),max_idx);
+    line_Eq_PHI1(:) = Eq_PHI1(x_max,y_max,:);
+    
+    Eq_PHI2 = MOD_EQ_1_scaled.*MOD1(:,:,:,4); % First harmonic for the fast 
+    [~,max_idx] = max(Eq_PHI2(:,:,:,1),[],'all','linear');
+    [x_max,y_max,~]=ind2sub(size(Eq_PHI2(:,:,:,1)),max_idx);
+    line_Eq_PHI2(:) = Eq_PHI2(x_max,y_max,:);
+    
+    PHID_eq_PHI1 = MOD1_adj(:,:,:,1).*MOD_EQ_1_scaled.*MOD1(:,:,:,1)+MOD2_adj(:,:,:,1).*MOD_EQ_2_scaled.*MOD2(:,:,:,1);
+    [~,max_idx] = max(PHID_eq_PHI1(:,:,:,1),[],'all','linear');
+    [x_max,y_max,~]=ind2sub(size(PHID_eq_PHI1(:,:,:,1)),max_idx);
+    line_PHID_eq_PHI1(:) = PHID_eq_PHI1(x_max,y_max,:);
+    
+    PHID_eq_PHI2 = MOD1_adj(:,:,:,1).*MOD_EQ_1_scaled.*MOD1(:,:,:,4)+MOD2_adj(:,:,:,1).*MOD_EQ_2_scaled.*MOD2(:,:,:,4);
+    [~,max_idx] = max(PHID_eq_PHI2(:,:,:,1),[],'all','linear');
+    [x_max,y_max,~]=ind2sub(size(PHID_eq_PHI2(:,:,:,1)),max_idx);
+    line_PHID_eq_PHI2(:) = PHID_eq_PHI2(x_max,y_max,:);
+    %FIGURE 1
+    figure(1)
     hold on
-    plot(line_temp_PHI_eq_mat_PHI/max(line_temp_PHI_eq_mat_PHI),h)
-    plot(line_adj/max(line_adj),h)
-    set(gca,'Visible','off')
-    %legend("|\Phi_{eq}_{mat}\times\phi_0(r)>","<\phi^{d}_0|")
+    plot(line_Eq_PHI1,h)
+    plot(line_X0_PHI1,h)
+    grid on
+    ylabel height
+    legend("\Phi_{eq}(fast)\times\Phi(1,fast)","X0\times\Phi(1,thermal)")
     hold off
-    figure
+    %FIGURE 2
+    figure(2)
     hold on
-    plot(line_temp_GAMMAX_PHI/max(line_temp_GAMMAX_PHI),h)
-    plot(line_adj/max(line_adj),h)
-    set(gca,'Visible','off')
-    legend("|\Gamma_{X}\times\phi_0(r)>","<\phi^{d}_0|")
+    plot(line_PHID_eq_PHI1,h)
+    plot(line_PHID_X0_PHI1,h)
+    grid on
+    ylabel height
+    legend("\Phi^{T}(1)\times\Phi_{eq}(matrix)\times\Phi(1)","\Phi^{T}(1,fast)X0\times\Phi(1,thermal)")
     hold off
-    figure
+    %FIGURE 3
+    figure(3)
     hold on
-    plot(line_temp_GAMMAI_PHI/max(line_temp_GAMMAI_PHI),h)
-    plot(line_adj/max(line_adj),h)
-    set(gca,'Visible','off')
-    legend("|\Gamma_{I}\times\phi_0(r)>","<\phi^{d}_0|")
-    hold off
-    figure
+    plot(line_PHID_eq_PHI2,h)
+    plot(line_PHID_X0_PHI2,h)
+    grid on
+    ylabel height
+    legend("\Phi^{T}(1)\times\Phi_{eq}(matrix)\times\Phi(2)","\Phi^{T}(1,fast)\times X0\times\Phi(2,thermal)")
+    %FIGURE 4
+    INT_XO = DZ*sum(line_PHID_X0_PHI1);
+    INT_PHI_EQ = DZ*sum(line_PHID_eq_PHI1);    
+    figure(4)
     hold on
-    plot(line_temp_PHIUPPER_PHI/max(line_temp_PHIUPPER_PHI),h)
-    plot(line_adj/max(line_adj),h)
-    set(gca,'Visible','off')
-    legend("|\Phi_{eq}_{upper}\times\phi_0(r)>","<\phi^{d}_0|")
-    hold off
-    figure
-    hold on
-    plot(line_temp_PHILOWER_PHI/max(line_temp_PHILOWER_PHI),h)
-    plot(line_adj/max(line_adj),h)
-    set(gca,'Visible','off')
-    legend("|\Phi_{eq}_{lower}\times\phi_0(r)>","<\phi^{d}_0|")
-    hold off
-    figure
-    hold on
-    plot(line_temp_X0_PHI/max(line_temp_X0_PHI),h)
-    plot(line_adj/max(line_adj),h)
-    set(gca,'Visible','off')
-    %legend("|X_{eq}\times\phi_0(r)>","<\phi^{d}_0|")
-    hold off
-    %title("Adjoint fundemental axial mode")
-    figure
-    hold on
-    plot(line_temp_PHI_eq_mat_PHI_2/max(line_temp_PHI_eq_mat_PHI_2),h)
-    plot(line_adj/max(line_adj),h)
-    set(gca,'Visible','off')
-    %legend("|\Phi_{eq}_{mat}\times\phi_1(r)>","<\phi^{d}_0|")
-    hold off
-    figure
-    hold on
-    plot(line_temp_X0_PHI_2/max(line_temp_X0_PHI_2),h)
-    plot(line_adj/max(line_adj),h)
-    set(gca,'Visible','off')
-    %legend("|X_{eq}\times\phi_1(r)>","<\phi^{d}_0|")
-    hold off
+    plot(line_PHID_eq_PHI2/INT_PHI_EQ,h)
+    plot(line_PHID_X0_PHI2/INT_XO,h)
+    grid on
+    ylabel height
+    legend("\Phi^{T}(1)\times\Phi_{eq}(matrix)\times\Phi(2)","\Phi^{T}(1,fast)\times X0\times\Phi(2,thermal)")
+%     [~,max_idx] = max(temp_PHI_eq_mat_PHI(:,:,:,1),[],[1 2 3],'linear');
+%     [x_max,y_max,~]=ind2sub(size(temp_PHI_eq_mat_PHI(35:64,:,:,1)),max_idx);
+%     line_temp_PHI_eq_mat_PHI(:) = temp_PHI_eq_mat_PHI(x_max,y_max,:,1);
+%     [~,max_idx] = max(temp_X0_PHI(:,:,:,1),[],'all','linear');
+%     [x_max,y_max,~]=ind2sub(size(temp_X0_PHI(35:64,:,:,1)),max_idx);
+%     line_temp_X0_PHI(:) =  temp_X0_PHI(x_max,y_max,:,1);
+%     [~,max_idx] = max(temp_X0_PHI(:,:,:,4),[],'all','linear');
+%     [x_max,y_max,~]=ind2sub(size(temp_X0_PHI(:,:,:,4)),max_idx);
+%     line_temp_X0_PHI_2(:) = temp_X0_PHI(x_max,y_max,:,4); %% First Harmonic
+%     [~,max_idx] = max(temp_PHI_eq_mat_PHI(35:64,:,:,4),[],'all','linear');
+%     [x_max,y_max,~]=ind2sub(size(temp_PHI_eq_mat_PHI(:,:,:,4)),max_idx);
+%     line_temp_PHI_eq_mat_PHI_2(:) = temp_PHI_eq_mat_PHI(x_max,y_max,:,4); %% First Harmonic
+%     [~,max_idx] = max(MOD_adj(:,35:64,:,1),[],'all','linear');
+%     [x_max,y_max,~]=ind2sub(size(MOD_adj(:,:,:,1)),max_idx);
+%     line_adj(:) = MOD_adj(x_max,y_max,:,1);
+%     [~,max_idx] = max(MOD_adj(:,35:64,:,4),[],'all','linear');
+%     [x_max,y_max,~]=ind2sub(size(MOD_adj(:,:,:,4)),max_idx);
+%     line_adj_2(:) = MOD_adj(x_max,y_max,:,4);
+%     %Figure 1
+%     figure(1)
+%     hold on
+%     X0_line(:) = X0(17,17,:);
+%     phi_eq_line(:) = MOD_eq_MAT(17,17,:,1);
+%     plot(phi_eq_line,h)
+%     plot(X0_line,h)
+%     %Figure 2
+%     figure(2)
+    
 end
 
 
