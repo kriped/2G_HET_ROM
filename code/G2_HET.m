@@ -148,7 +148,7 @@ end
 close all
 on = 1;
 if on  
-    h = 1:sizez;
+    h = linspace(1,height,sizez);
     X0_PHI1 = X0.*MOD2(:,:,:,1); % X0*Phi_thermal fundamental mode
     [~,max_idx] = max(X0_PHI1(:,:,:,1),[],'all','linear');
     [x_max,y_max,~]=ind2sub(size(X0_PHI1(:,:,:,1)),max_idx);
@@ -219,39 +219,21 @@ if on
     INT_PHI_EQ = DZ*sum(line_PHID_eq_PHI1);    
     figure(4)
     hold on
-    plot(line_PHID_eq_PHI2/INT_PHI_EQ,h)
-    plot(line_PHID_X0_PHI2/INT_XO,h)
+    plot(h,line_PHID_eq_PHI2/INT_PHI_EQ)
+    plot(h,line_PHID_X0_PHI2/INT_XO)
     grid on
-    ylabel height
-    legend("\Phi^{T}(1)\times\Phi_{eq}(matrix)\times\Phi(2)","\Phi^{T}(1,fast)\times X0\times\Phi(2,thermal)")
-%     [~,max_idx] = max(temp_PHI_eq_mat_PHI(:,:,:,1),[],[1 2 3],'linear');
-%     [x_max,y_max,~]=ind2sub(size(temp_PHI_eq_mat_PHI(35:64,:,:,1)),max_idx);
-%     line_temp_PHI_eq_mat_PHI(:) = temp_PHI_eq_mat_PHI(x_max,y_max,:,1);
-%     [~,max_idx] = max(temp_X0_PHI(:,:,:,1),[],'all','linear');
-%     [x_max,y_max,~]=ind2sub(size(temp_X0_PHI(35:64,:,:,1)),max_idx);
-%     line_temp_X0_PHI(:) =  temp_X0_PHI(x_max,y_max,:,1);
-%     [~,max_idx] = max(temp_X0_PHI(:,:,:,4),[],'all','linear');
-%     [x_max,y_max,~]=ind2sub(size(temp_X0_PHI(:,:,:,4)),max_idx);
-%     line_temp_X0_PHI_2(:) = temp_X0_PHI(x_max,y_max,:,4); %% First Harmonic
-%     [~,max_idx] = max(temp_PHI_eq_mat_PHI(35:64,:,:,4),[],'all','linear');
-%     [x_max,y_max,~]=ind2sub(size(temp_PHI_eq_mat_PHI(:,:,:,4)),max_idx);
-%     line_temp_PHI_eq_mat_PHI_2(:) = temp_PHI_eq_mat_PHI(x_max,y_max,:,4); %% First Harmonic
-%     [~,max_idx] = max(MOD_adj(:,35:64,:,1),[],'all','linear');
-%     [x_max,y_max,~]=ind2sub(size(MOD_adj(:,:,:,1)),max_idx);
-%     line_adj(:) = MOD_adj(x_max,y_max,:,1);
-%     [~,max_idx] = max(MOD_adj(:,35:64,:,4),[],'all','linear');
-%     [x_max,y_max,~]=ind2sub(size(MOD_adj(:,:,:,4)),max_idx);
-%     line_adj_2(:) = MOD_adj(x_max,y_max,:,4);
-%     %Figure 1
-%     figure(1)
-%     hold on
-%     X0_line(:) = X0(17,17,:);
-%     phi_eq_line(:) = MOD_eq_MAT(17,17,:,1);
-%     plot(phi_eq_line,h)
-%     plot(X0_line,h)
-%     %Figure 2
-%     figure(2)
     
+    
+    %create shading under the curves on figure 4 and calculate the area line_PHID_eq_PHI2/INT_PHI_EQ and the zero line on the horisontal axis
+    % use the area function to create the shading under the curve
+    %area(line_PHID_eq_PHI2/INT_PHI_EQ,h,'FaceColor',[0.0 0.0 0.5],'FaceAlpha',0.5)
+    %area(line_EQ_PHI2/INT_PHI_EQ,h,'FaceColor',[0.5 0.0 0.0],'FaceAlpha',0.5)
+    area(h,line_PHID_eq_PHI2/INT_PHI_EQ,'FaceColor',[0 0.4470 0.7410],'FaceAlpha',0.3)
+    area(h,line_PHID_X0_PHI2/INT_XO,'FaceColor',[0.8500 0.3250 0.0980],'FaceAlpha',0.3)
+    legend("\Phi^{T}(1)\times\Phi_{eq}(matrix)\times\Phi(2)","\Phi^{T}(1,fast)\times X0\times\Phi(2,thermal)")
+    xlabel('Height (cm)')
+
+    %display the difference between the top and bottom areas for both graphs respectively
 end
 
 
