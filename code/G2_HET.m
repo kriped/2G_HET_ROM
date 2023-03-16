@@ -1,5 +1,4 @@
 %%
-tic
 clear variables; close all; clc;
 %CORE_SIM_time = tic;
 %run("C:/Users/kriped//Chalmers/Christophe Demaziere - XEROM/CORE_SIM_1.2_edited/CORE_SIM.m")
@@ -144,98 +143,6 @@ for n = 1:M
     temp_X0_PHI(:,:,:,n) = G2_inner_product(Xe_UPPER,MOD(:,:,:,n),"matrix","vector"); % |\bar{X} * X0 * Phi_n >
     %temp_CR_PHI(:,:,:,n) = G2_inner_product(CR_SA,MOD(:,:,:,n),"matrix","vector"); % CP
 end
-%% Plot axial functions for fundamental modes
-close all
-on = 1;
-if on  
-    h = linspace(1,height,sizez);
-    X0_PHI1 = X0.*MOD2(:,:,:,1); % X0*Phi_thermal fundamental mode
-    [~,max_idx] = max(X0_PHI1(:,:,:,1),[],'all','linear');
-    [x_max,y_max,~]=ind2sub(size(X0_PHI1(:,:,:,1)),max_idx);
-    line_X0_PHI1(:) = X0_PHI1(x_max,y_max,:);
-    
-    X0_PHI2 = X0 .* MOD2(:,:,:,4);% X0*Phi_thermal fundamental mode
-    [~,max_idx] = max(X0_PHI2(:,:,:,1),[],'all','linear');
-    [x_max,y_max,~]=ind2sub(size(X0_PHI2(:,:,:,1)),max_idx);
-    line_X0_PHI2(:) = X0_PHI2(x_max,y_max,:);
-    
-    PHID_X0_PHI1 = MOD1_adj(:,:,:,1).* X0_PHI1;
-    [~,max_idx] = max(PHID_X0_PHI1(:,:,:,1),[],'all','linear');
-    [x_max,y_max,~]=ind2sub(size(PHID_X0_PHI1(:,:,:,1)),max_idx);
-    line_PHID_X0_PHI1(:) = PHID_X0_PHI1(x_max,y_max,:);
-    
-    PHID_X0_PHI2 = MOD1_adj(:,:,:,1).* X0_PHI2;
-    [~,max_idx] = max(PHID_X0_PHI2(:,:,:,1),[],'all','linear');
-    [x_max,y_max,~]=ind2sub(size(PHID_X0_PHI2(:,:,:,1)),max_idx);
-    line_PHID_X0_PHI2(:) = PHID_X0_PHI2(x_max,y_max,:);
-    
-    Eq_PHI1 = MOD_EQ_1_scaled.*MOD1(:,:,:,1);
-    [~,max_idx] = max(Eq_PHI1(:,:,:,1),[],'all','linear');
-    [x_max,y_max,~]=ind2sub(size(Eq_PHI1(:,:,:,1)),max_idx);
-    line_Eq_PHI1(:) = Eq_PHI1(x_max,y_max,:);
-    
-    Eq_PHI2 = MOD_EQ_1_scaled.*MOD1(:,:,:,4); % First harmonic for the fast 
-    [~,max_idx] = max(Eq_PHI2(:,:,:,1),[],'all','linear');
-    [x_max,y_max,~]=ind2sub(size(Eq_PHI2(:,:,:,1)),max_idx);
-    line_Eq_PHI2(:) = Eq_PHI2(x_max,y_max,:);
-    
-    PHID_eq_PHI1 = MOD1_adj(:,:,:,1).*MOD_EQ_1_scaled.*MOD1(:,:,:,1)+MOD2_adj(:,:,:,1).*MOD_EQ_2_scaled.*MOD2(:,:,:,1);
-    [~,max_idx] = max(PHID_eq_PHI1(:,:,:,1),[],'all','linear');
-    [x_max,y_max,~]=ind2sub(size(PHID_eq_PHI1(:,:,:,1)),max_idx);
-    line_PHID_eq_PHI1(:) = PHID_eq_PHI1(x_max,y_max,:);
-    
-    PHID_eq_PHI2 = MOD1_adj(:,:,:,1).*MOD_EQ_1_scaled.*MOD1(:,:,:,4)+MOD2_adj(:,:,:,1).*MOD_EQ_2_scaled.*MOD2(:,:,:,4);
-    [~,max_idx] = max(PHID_eq_PHI2(:,:,:,1),[],'all','linear');
-    [x_max,y_max,~]=ind2sub(size(PHID_eq_PHI2(:,:,:,1)),max_idx);
-    line_PHID_eq_PHI2(:) = PHID_eq_PHI2(x_max,y_max,:);
-    %FIGURE 1
-    figure(1)
-    hold on
-    plot(line_Eq_PHI1,h)
-    plot(line_X0_PHI1,h)
-    grid on
-    ylabel height
-    legend("\Phi_{eq}(fast)\times\Phi(1,fast)","X0\times\Phi(1,thermal)")
-    hold off
-    %FIGURE 2
-    figure(2)
-    hold on
-    plot(line_PHID_eq_PHI1,h)
-    plot(line_PHID_X0_PHI1,h)
-    grid on
-    ylabel height
-    legend("\Phi^{T}(1)\times\Phi_{eq}(matrix)\times\Phi(1)","\Phi^{T}(1,fast)X0\times\Phi(1,thermal)")
-    hold off
-    %FIGURE 3
-    figure(3)
-    hold on
-    plot(line_PHID_eq_PHI2,h)
-    plot(line_PHID_X0_PHI2,h)
-    grid on
-    ylabel height
-    legend("\Phi^{T}(1)\times\Phi_{eq}(matrix)\times\Phi(2)","\Phi^{T}(1,fast)\times X0\times\Phi(2,thermal)")
-    %FIGURE 4
-    INT_XO = DZ*sum(line_PHID_X0_PHI1);
-    INT_PHI_EQ = DZ*sum(line_PHID_eq_PHI1);    
-    figure(4)
-    hold on
-    plot(h,line_PHID_eq_PHI2/INT_PHI_EQ)
-    plot(h,line_PHID_X0_PHI2/INT_XO)
-    grid on
-    
-    
-    %create shading under the curves on figure 4 and calculate the area line_PHID_eq_PHI2/INT_PHI_EQ and the zero line on the horisontal axis
-    % use the area function to create the shading under the curve
-    %area(line_PHID_eq_PHI2/INT_PHI_EQ,h,'FaceColor',[0.0 0.0 0.5],'FaceAlpha',0.5)
-    %area(line_EQ_PHI2/INT_PHI_EQ,h,'FaceColor',[0.5 0.0 0.0],'FaceAlpha',0.5)
-    area(h,line_PHID_eq_PHI2/INT_PHI_EQ,'FaceColor',[0 0.4470 0.7410],'FaceAlpha',0.3)
-    area(h,line_PHID_X0_PHI2/INT_XO,'FaceColor',[0.8500 0.3250 0.0980],'FaceAlpha',0.3)
-    legend("\Phi^{T}(1)\times\Phi_{eq}(matrix)\times\Phi(2)","\Phi^{T}(1,fast)\times X0\times\Phi(2,thermal)")
-    xlabel('Height (cm)')
-
-    %display the difference between the top and bottom areas for both graphs respectively
-end
-
 
 %% Calculate bra-kets 
 
@@ -373,4 +280,6 @@ save ../data/time_signal.mat time_2G state_values_2G sizex sizey sizez M MOD1 MO
 %     %CR = zeros(M).*(t<=tc) + PHID_CR_PHI.*(t>tc);
 %     DY = eval(['[',f, ']']);
 % end
-toc
+
+
+%%
